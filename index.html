@@ -8,8 +8,9 @@
 <style>
   :root {
     --blue: #1a73e8; 
-    --bright-blue: #007bff; /* Яскраво-блакитний для вкладок */
-    --green: #1e8f3c; --orange: #e65100;
+    --bright-blue: #00ccff; /* Оновлено на яскравіший блакитний для вибору днів */
+    --green: #1e8f3c; 
+    --orange: #e65100;
     --terracotta: #cc4e2e; 
     --bg: #f0f4ff; --card: #ffffff; --text: #1a1a2e; --muted: #6b7280;
     --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.10);
@@ -22,9 +23,20 @@
   .header h1 { font-family: 'Russo One', sans-serif; font-size: 1.4rem; letter-spacing: 0.5px; line-height: 1.3; }
   .header p { font-size: 0.82rem; opacity: 0.8; margin-top: 6px; }
   .update-badge { display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 12px; font-size: 0.73rem; margin-top: 10px; backdrop-filter: blur(4px); }
+  
+  /* ОНОВЛЕНА НАВІГАЦІЯ */
   .nav-tabs { display: flex; gap: 8px; padding: 16px; position: sticky; top: 0; z-index: 100; background: var(--bg); }
-  .tab-btn { flex: 1; padding: 12px 16px; border: none; border-radius: 30px; font-weight: 700; font-size: 0.85rem; background: white; color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-  .tab-btn.active-blue { background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(26,115,232,0.4); }
+  .tab-btn { flex: 1; padding: 10px 8px; border: 2px solid transparent; border-radius: 30px; font-weight: 700; font-size: 0.75rem; background: white; color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+  
+  /* Стилі для конкретних напрямків (активні та неактивні) */
+  .tab-btn.btn-vysokyi { border-color: var(--blue); color: var(--blue); }
+  .tab-btn.btn-vysokyi.active { background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(26,115,232,0.4); }
+
+  .tab-btn.btn-budy { border-color: var(--green); color: var(--green); }
+  .tab-btn.btn-budy.active { background: var(--green); color: white; box-shadow: 0 4px 15px rgba(30,143,60,0.4); }
+
+  .tab-btn.btn-merefa { border-color: var(--orange); color: var(--orange); }
+  .tab-btn.btn-merefa.active { background: var(--orange); color: white; box-shadow: 0 4px 15px rgba(230,81,0,0.4); }
   
   .section { padding: 16px; }
   .route-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden; }
@@ -36,14 +48,14 @@
   .route-title { font-weight: 800; font-size: 0.95rem; line-height: 1.3; }
   .route-sub { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
   
-  /* ЯСКРАВО-БЛАКИТНЕ ВИДІЛЕННЯ ВИБОРУ ДНІВ */
+  /* ПІДСВІТКА ВИБОРУ ДНІВ (ЯСКРАВО-БЛАКИТНИЙ) */
   .card-tabs { display: flex; border-bottom: 1px solid #eef2f7; background: #fafbff; }
   .card-tab { flex: 1; padding: 12px 4px; font-weight: 700; font-size: 0.8rem; border: none; background: transparent; cursor: pointer; color: var(--muted); border-bottom: 4px solid transparent; transition: all 0.2s; }
   .card-tab.active { 
     border-color: var(--bright-blue) !important; 
     color: var(--bright-blue) !important; 
+    background-color: rgba(0, 204, 255, 0.05); /* Легкий фон для акценту */
     font-weight: 800;
-    text-shadow: 0 0 1px rgba(0,123,255,0.2);
   }
 
   .sched-panel { display: none; padding: 14px 14px 16px; }
@@ -70,7 +82,6 @@
   .footer { text-align: center; padding: 20px 20px 0; font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
   .footer a { color: var(--blue); text-decoration: none; }
 
-  /* ТЕРАКОТОВЕ ПІДСВІЧУВАННЯ */
   .nearest {
     background: var(--terracotta) !important;
     color: white !important;
@@ -102,9 +113,9 @@
 </div>
 
 <div class="nav-tabs">
-  <a href="#vysokiy" class="tab-btn active-blue">🔵 Високий – Харків</a>
-  <a href="#budy" class="tab-btn">🟢 Буди – Харків</a>
-  <a href="#budy-merefa" class="tab-btn">🟠 Буди – Мерефа</a>
+  <a href="#vysokiy" class="tab-btn btn-vysokyi active">🔵 Високий – Харків</a>
+  <a href="#budy" class="tab-btn btn-budy">🟢 Буди – Харків</a>
+  <a href="#budy-merefa" class="tab-btn btn-merefa">🟠 Буди – Мерефа</a>
 </div>
 
 <div id="vysokiy" class="section">
@@ -228,7 +239,15 @@
 </div>
 
 <script>
-  // Вкладки всередині карток
+  // Навігація вгорі екрану (перемикання підсвітки кнопок)
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Вкладки всередині карток (Пн-Пт, Вихідні тощо)
   document.querySelectorAll('.card-tab').forEach(tab => {
     tab.addEventListener('click', function() {
       const card = this.closest('.route-card');
