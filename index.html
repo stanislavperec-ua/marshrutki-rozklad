@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Розклад маршруток | Харківська область</title>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a73e8; 
+    --bright-blue: #007bff; /* Яскраво-блакитний для вкладок */
+    --green: #1e8f3c; --orange: #e65100;
+    --terracotta: #cc4e2e; 
+    --bg: #f0f4ff; --card: #ffffff; --text: #1a1a2e; --muted: #6b7280;
+    --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.10);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .header { background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%); color: white; padding: 28px 20px 20px; text-align: center; position: relative; overflow: hidden; }
+  .header-icon { font-size: 2.4rem; margin-bottom: 6px; }
+  .header h1 { font-family: 'Russo One', sans-serif; font-size: 1.4rem; letter-spacing: 0.5px; line-height: 1.3; }
+  .header p { font-size: 0.82rem; opacity: 0.8; margin-top: 6px; }
+  .update-badge { display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 12px; font-size: 0.73rem; margin-top: 10px; backdrop-filter: blur(4px); }
+  .nav-tabs { display: flex; gap: 8px; padding: 16px; position: sticky; top: 0; z-index: 100; background: var(--bg); }
+  .tab-btn { flex: 1; padding: 12px 16px; border: none; border-radius: 30px; font-weight: 700; font-size: 0.85rem; background: white; color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+  .tab-btn.active-blue { background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(26,115,232,0.4); }
+  
+  .section { padding: 16px; }
+  .route-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden; }
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; color: white; }
+  .card-header.blue { background: linear-gradient(135deg, #1565c0, #1976d2); }
+  .card-header.green { background: linear-gradient(135deg, #145a28, #1e8f3c); }
+  .card-header.orange { background: linear-gradient(135deg, #bf360c, #e65100); }
+  .route-num { background: rgba(255,255,255,0.22); border-radius: 10px; padding: 4px 10px; font-family: 'Russo One', sans-serif; font-size: 1rem; white-space: nowrap; border: 1px solid rgba(255,255,255,0.3); }
+  .route-title { font-weight: 800; font-size: 0.95rem; line-height: 1.3; }
+  .route-sub { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+  
+  /* ЯСКРАВО-БЛАКИТНЕ ВИДІЛЕННЯ ВИБОРУ ДНІВ */
+  .card-tabs { display: flex; border-bottom: 1px solid #eef2f7; background: #fafbff; }
+  .card-tab { flex: 1; padding: 12px 4px; font-weight: 700; font-size: 0.8rem; border: none; background: transparent; cursor: pointer; color: var(--muted); border-bottom: 4px solid transparent; transition: all 0.2s; }
+  .card-tab.active { 
+    border-color: var(--bright-blue) !important; 
+    color: var(--bright-blue) !important; 
+    font-weight: 800;
+    text-shadow: 0 0 1px rgba(0,123,255,0.2);
+  }
+
+  .sched-panel { display: none; padding: 14px 14px 16px; }
+  .sched-panel.active { display: block; }
+  .direction-block { margin-bottom: 16px; }
+  .direction-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .dir-arrow { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+  .dir-arrow.blue { background: #e3f2fd; color: var(--blue); }
+  .dir-arrow.green { background: #e8f5e9; color: var(--green); }
+  .dir-arrow.orange { background: #fbe9e7; color: var(--orange); }
+  .dir-text { font-weight: 700; font-size: 0.85rem; line-height: 1.3; }
+  .dir-sub { font-size: 0.72rem; color: var(--muted); }
+  .times-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+  .time-chip { padding: 5px 11px; border-radius: 20px; font-weight: 700; font-size: 0.88rem; font-family: 'Nunito', sans-serif; letter-spacing: 0.3px; }
+  .time-chip.blue { background: #e3f2fd; color: #0d47a1; }
+  .time-chip.green { background: #e8f5e9; color: #145a28; }
+  .time-chip.orange { background: #fbe9e7; color: #bf360c; }
+  .divider { height: 1px; background: #f0f0f0; margin: 14px 0; }
+  .info-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; background: #fafbff; border-top: 1px solid #f0f0f0; }
+  .info-chip { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; font-weight: 600; color: var(--muted); }
+  .info-chip span { font-size: 0.85rem; }
+  .warn-banner { margin: 0 16px 6px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 10px 14px; font-size: 0.76rem; color: #7b5800; display: flex; gap: 8px; align-items: flex-start; }
+  .warn-banner .icon { font-size: 1rem; flex-shrink:0; }
+  .footer { text-align: center; padding: 20px 20px 0; font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+  .footer a { color: var(--blue); text-decoration: none; }
+
+  /* ТЕРАКОТОВЕ ПІДСВІЧУВАННЯ */
+  .nearest {
+    background: var(--terracotta) !important;
+    color: white !important;
+    border: 3px solid #b33d20 !important;
+    box-shadow: 0 0 12px rgba(204, 78, 46, 0.5);
+    position: relative;
+  }
+  .nearest::after {
+    content: "⏰";
+    position: absolute;
+    top: -12px;
+    right: -8px;
+    background: white;
+    font-size: 0.9rem;
+    padding: 2px;
+    border-radius: 50%;
+    line-height: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🚌</div>
+  <h1>Маршрутки<br>Харківська область</h1>
+  <p>Розклад приміських рейсів</p>
+  <div class="update-badge">⏱ Дані: gortransport.kharkov.ua</div>
+</div>
+
+<div class="nav-tabs">
+  <a href="#vysokiy" class="tab-btn active-blue">🔵 Високий – Харків</a>
+  <a href="#budy" class="tab-btn">🟢 Буди – Харків</a>
+  <a href="#budy-merefa" class="tab-btn">🟠 Буди – Мерефа</a>
+</div>
+
+<div id="vysokiy" class="section">
+  <div class="warn-banner"><span class="icon">⚠️</span><span>Розклад може змінюватися. Уточнюйте на терміналі «Холодна Гора».</span></div>
+
+  <div class="route-card">
+    <div class="card-header blue"><div class="route-num">№ 1608</div><div><div class="route-title">Харків → Високий (ст. Високий)</div><div class="route-sub">АС «Холодна Гора» → Станція Високий</div></div></div>
+    <div class="card-tabs"><button class="card-tab active" data-panel="r1608-daily">Щоденно</button></div>
+    <div id="r1608-daily" class="sched-panel active">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків (м. «Холодна Гора»)</div><div class="dir-sub">відправлення з Харкова</div></div></div><div class="times-grid"><span class="time-chip blue">07:15</span><span class="time-chip blue">08:50</span><span class="time-chip blue">11:00</span><span class="time-chip blue">12:30</span><span class="time-chip blue">14:00</span><span class="time-chip blue">15:35</span><span class="time-chip blue">17:00</span><span class="time-chip blue">19:00</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Високий (зал. платформа)</div><div class="dir-sub">відправлення з Високого</div></div></div><div class="times-grid"><span class="time-chip blue">06:10</span><span class="time-chip blue">08:00</span><span class="time-chip blue">09:30</span><span class="time-chip blue">11:40</span><span class="time-chip blue">13:10</span><span class="time-chip blue">14:35</span><span class="time-chip blue">16:10</span><span class="time-chip blue">17:40</span></div></div>
+    </div>
+    <div class="info-row"><span class="info-chip"><span>🚐</span> Mercedes Sprinter</span><span class="info-chip"><span>⏱</span> ~30 хв</span><span class="info-chip"><span>🅿️</span> Платф. № 8</span></div>
+  </div>
+
+  <div class="route-card">
+    <div class="card-header blue"><div class="route-num">№ 1624</div><div><div class="route-title">Харків → Високий (Зелений Гай)</div><div class="route-sub">АС «Холодна Гора» → Зелений Гай</div></div></div>
+    <div class="card-tabs">
+      <button class="card-tab active" data-panel="r1624-pnp">Пн–Пт</button>
+      <button class="card-tab" data-panel="r1624-sbnd">Сб–Нд</button>
+    </div>
+    <div id="r1624-pnp" class="sched-panel active">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків → Зелений Гай</div></div></div><div class="times-grid"><span class="time-chip blue">07:45</span><span class="time-chip blue">08:30</span><span class="time-chip blue">09:15</span><span class="time-chip blue">10:00</span><span class="time-chip blue">10:45</span><span class="time-chip blue">11:30</span><span class="time-chip blue">12:15</span><span class="time-chip blue">13:00</span><span class="time-chip blue">13:45</span><span class="time-chip blue">14:30</span><span class="time-chip blue">15:15</span><span class="time-chip blue">16:00</span><span class="time-chip blue">16:45</span><span class="time-chip blue">17:30</span><span class="time-chip blue">18:15</span><span class="time-chip blue">19:00</span><span class="time-chip blue">19:45</span><span class="time-chip blue">21:30</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Зелений Гай → Харків</div></div></div><div class="times-grid"><span class="time-chip blue">05:40</span><span class="time-chip blue">07:30</span><span class="time-chip blue">08:50</span><span class="time-chip blue">10:40</span><span class="time-chip blue">12:05</span><span class="time-chip blue">14:00</span><span class="time-chip blue">16:00</span><span class="time-chip blue">18:10</span></div></div>
+    </div>
+    <div id="r1624-sbnd" class="sched-panel">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків (вихідні)</div></div></div><div class="times-grid"><span class="time-chip blue">07:45</span><span class="time-chip blue">09:15</span><span class="time-chip blue">10:45</span><span class="time-chip blue">12:15</span><span class="time-chip blue">13:45</span><span class="time-chip blue">15:15</span><span class="time-chip blue">16:45</span><span class="time-chip blue">18:15</span><span class="time-chip blue">19:45</span><span class="time-chip blue">21:30</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Зелений Гай (вихідні)</div></div></div><div class="times-grid"><span class="time-chip blue">05:40</span><span class="time-chip blue">07:30</span><span class="time-chip blue">08:50</span><span class="time-chip blue">10:40</span><span class="time-chip blue">12:05</span><span class="time-chip blue">14:00</span><span class="time-chip blue">16:00</span><span class="time-chip blue">18:10</span></div></div>
+    </div>
+    <div class="info-row"><span class="info-chip"><span>🚐</span> VW LT / Sprinter</span><span class="info-chip"><span>⏱</span> ~35 хв</span><span class="info-chip"><span>🅿️</span> Платф. № 8</span></div>
+  </div>
+
+  <div class="route-card">
+    <div class="card-header blue"><div class="route-num">№ 1182</div><div><div class="route-title">Харків → пл. Високий → Н. Березівка</div><div class="route-sub">АС «Холодна Гора» → Нова Березівка</div></div></div>
+    <div class="card-tabs">
+      <button class="card-tab active" data-panel="r1182-pnp">Пн–Пт</button>
+      <button class="card-tab" data-panel="r1182-sb">Субота</button>
+      <button class="card-tab" data-panel="r1182-nd">Неділя</button>
+    </div>
+
+    <div id="r1182-pnp" class="sched-panel active">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків → Н. Березівка</div></div></div><div class="times-grid"><span class="time-chip blue">06:20</span><span class="time-chip blue">07:20</span><span class="time-chip blue">07:50</span><span class="time-chip blue">08:20</span><span class="time-chip blue">08:50</span><span class="time-chip blue">09:20</span><span class="time-chip blue">09:50</span><span class="time-chip blue">10:20</span><span class="time-chip blue">10:50</span><span class="time-chip blue">11:20</span><span class="time-chip blue">12:00</span><span class="time-chip blue">12:45</span><span class="time-chip blue">13:20</span><span class="time-chip blue">13:50</span><span class="time-chip blue">14:20</span><span class="time-chip blue">14:50</span><span class="time-chip blue">15:20</span><span class="time-chip blue">15:50</span><span class="time-chip blue">16:20</span><span class="time-chip blue">16:50</span><span class="time-chip blue">17:20</span><span class="time-chip blue">17:50</span><span class="time-chip blue">18:20</span><span class="time-chip blue">18:50</span><span class="time-chip blue">19:20</span><span class="time-chip blue">20:20</span><span class="time-chip blue">21:20</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Березівку) <span class="dir-sub">*приблизно 25 хвилин</span></div></div></div><div class="times-grid"><span class="time-chip blue">06:45</span><span class="time-chip blue">07:45</span><span class="time-chip blue">08:15</span><span class="time-chip blue">08:45</span><span class="time-chip blue">09:15</span><span class="time-chip blue">09:45</span><span class="time-chip blue">10:15</span><span class="time-chip blue">10:45</span><span class="time-chip blue">11:15</span><span class="time-chip blue">11:45</span><span class="time-chip blue">12:25</span><span class="time-chip blue">13:10</span><span class="time-chip blue">13:45</span><span class="time-chip blue">14:15</span><span class="time-chip blue">14:45</span><span class="time-chip blue">15:15</span><span class="time-chip blue">15:45</span><span class="time-chip blue">16:15</span><span class="time-chip blue">16:45</span><span class="time-chip blue">17:15</span><span class="time-chip blue">17:45</span><span class="time-chip blue">18:15</span><span class="time-chip blue">18:45</span><span class="time-chip blue">19:15</span><span class="time-chip blue">19:45</span><span class="time-chip blue">20:45</span><span class="time-chip blue">21:45</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Н. Березівка → Харків</div></div></div><div class="times-grid"><span class="time-chip blue">05:50</span><span class="time-chip blue">06:20</span><span class="time-chip blue">06:50</span><span class="time-chip blue">07:15</span><span class="time-chip blue">07:45</span><span class="time-chip blue">08:15</span><span class="time-chip blue">08:45</span><span class="time-chip blue">09:15</span><span class="time-chip blue">09:45</span><span class="time-chip blue">10:15</span><span class="time-chip blue">10:45</span><span class="time-chip blue">11:15</span><span class="time-chip blue">11:45</span><span class="time-chip blue">12:30</span><span class="time-chip blue">13:15</span><span class="time-chip blue">13:45</span><span class="time-chip blue">14:15</span><span class="time-chip blue">14:45</span><span class="time-chip blue">15:15</span><span class="time-chip blue">15:45</span><span class="time-chip blue">16:15</span><span class="time-chip blue">16:45</span><span class="time-chip blue">17:15</span><span class="time-chip blue">17:45</span><span class="time-chip blue">18:15</span><span class="time-chip blue">19:00</span><span class="time-chip blue">20:00</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Харків) <span class="dir-sub">*приблизно +8 хв</span></div></div></div><div class="times-grid"><span class="time-chip blue">05:58</span><span class="time-chip blue">06:28</span><span class="time-chip blue">06:58</span><span class="time-chip blue">07:23</span><span class="time-chip blue">07:53</span><span class="time-chip blue">08:23</span><span class="time-chip blue">08:53</span><span class="time-chip blue">09:23</span><span class="time-chip blue">09:53</span><span class="time-chip blue">10:23</span><span class="time-chip blue">10:53</span><span class="time-chip blue">11:23</span><span class="time-chip blue">11:53</span><span class="time-chip blue">12:38</span><span class="time-chip blue">13:23</span><span class="time-chip blue">13:53</span><span class="time-chip blue">14:23</span><span class="time-chip blue">14:53</span><span class="time-chip blue">15:23</span><span class="time-chip blue">15:53</span><span class="time-chip blue">16:23</span><span class="time-chip blue">16:53</span><span class="time-chip blue">17:23</span><span class="time-chip blue">17:53</span><span class="time-chip blue">18:23</span><span class="time-chip blue">19:08</span><span class="time-chip blue">20:08</span></div></div>
+    </div>
+
+    <div id="r1182-sb" class="sched-panel">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків → Н. Березівка</div></div></div><div class="times-grid"><span class="time-chip blue">07:20</span><span class="time-chip blue">08:10</span><span class="time-chip blue">09:00</span><span class="time-chip blue">09:50</span><span class="time-chip blue">10:40</span><span class="time-chip blue">11:30</span><span class="time-chip blue">12:20</span><span class="time-chip blue">13:10</span><span class="time-chip blue">14:00</span><span class="time-chip blue">14:50</span><span class="time-chip blue">15:40</span><span class="time-chip blue">16:30</span><span class="time-chip blue">17:20</span><span class="time-chip blue">18:10</span><span class="time-chip blue">19:05</span><span class="time-chip blue">20:20</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Березівку) <span class="dir-sub">*приблизно 25 хвилин</span></div></div></div><div class="times-grid"><span class="time-chip blue">07:45</span><span class="time-chip blue">08:35</span><span class="time-chip blue">09:25</span><span class="time-chip blue">10:15</span><span class="time-chip blue">11:05</span><span class="time-chip blue">11:55</span><span class="time-chip blue">12:45</span><span class="time-chip blue">13:35</span><span class="time-chip blue">14:25</span><span class="time-chip blue">15:15</span><span class="time-chip blue">16:05</span><span class="time-chip blue">16:55</span><span class="time-chip blue">17:45</span><span class="time-chip blue">18:35</span><span class="time-chip blue">19:30</span><span class="time-chip blue">20:45</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Н. Березівка → Харків</div></div></div><div class="times-grid"><span class="time-chip blue">06:20</span><span class="time-chip blue">07:05</span><span class="time-chip blue">07:55</span><span class="time-chip blue">08:45</span><span class="time-chip blue">09:35</span><span class="time-chip blue">10:25</span><span class="time-chip blue">11:15</span><span class="time-chip blue">12:05</span><span class="time-chip blue">12:55</span><span class="time-chip blue">13:45</span><span class="time-chip blue">14:35</span><span class="time-chip blue">15:25</span><span class="time-chip blue">16:15</span><span class="time-chip blue">17:05</span><span class="time-chip blue">17:55</span><span class="time-chip blue">19:00</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Харків) <span class="dir-sub">*приблизно +8 хв</span></div></div></div><div class="times-grid"><span class="time-chip blue">06:28</span><span class="time-chip blue">07:13</span><span class="time-chip blue">08:03</span><span class="time-chip blue">08:53</span><span class="time-chip blue">09:43</span><span class="time-chip blue">10:33</span><span class="time-chip blue">11:23</span><span class="time-chip blue">12:13</span><span class="time-chip blue">13:03</span><span class="time-chip blue">13:53</span><span class="time-chip blue">14:43</span><span class="time-chip blue">15:33</span><span class="time-chip blue">16:23</span><span class="time-chip blue">17:13</span><span class="time-chip blue">18:03</span><span class="time-chip blue">19:08</span></div></div>
+    </div>
+
+    <div id="r1182-nd" class="sched-panel">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏙️</div><div><div class="dir-text">Харків → Н. Березівка</div></div></div><div class="times-grid"><span class="time-chip blue">07:00</span><span class="time-chip blue">08:05</span><span class="time-chip blue">09:10</span><span class="time-chip blue">10:15</span><span class="time-chip blue">11:20</span><span class="time-chip blue">12:25</span><span class="time-chip blue">13:30</span><span class="time-chip blue">14:35</span><span class="time-chip blue">15:40</span><span class="time-chip blue">16:50</span><span class="time-chip blue">18:00</span><span class="time-chip blue">19:05</span><span class="time-chip blue">20:20</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Березівку) <span class="dir-sub">*приблизно 25 хвилин</span></div></div></div><div class="times-grid"><span class="time-chip blue">07:25</span><span class="time-chip blue">08:30</span><span class="time-chip blue">09:35</span><span class="time-chip blue">10:40</span><span class="time-chip blue">11:45</span><span class="time-chip blue">12:50</span><span class="time-chip blue">13:55</span><span class="time-chip blue">15:00</span><span class="time-chip blue">16:05</span><span class="time-chip blue">17:15</span><span class="time-chip blue">18:25</span><span class="time-chip blue">19:30</span><span class="time-chip blue">20:45</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🏡</div><div><div class="dir-text">Н. Березівка → Харків</div></div></div><div class="times-grid"><span class="time-chip blue">06:20</span><span class="time-chip blue">07:30</span><span class="time-chip blue">08:35</span><span class="time-chip blue">09:40</span><span class="time-chip blue">10:45</span><span class="time-chip blue">11:50</span><span class="time-chip blue">12:55</span><span class="time-chip blue">14:00</span><span class="time-chip blue">15:05</span><span class="time-chip blue">16:10</span><span class="time-chip blue">17:20</span><span class="time-chip blue">18:30</span><span class="time-chip blue">19:35</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow blue">🚉</div><div><div class="dir-text">пл. Високий (на Харків) <span class="dir-sub">*приблизно +8 хв</span></div></div></div><div class="times-grid"><span class="time-chip blue">06:28</span><span class="time-chip blue">07:38</span><span class="time-chip blue">08:43</span><span class="time-chip blue">09:48</span><span class="time-chip blue">10:53</span><span class="time-chip blue">11:58</span><span class="time-chip blue">13:03</span><span class="time-chip blue">14:08</span><span class="time-chip blue">15:13</span><span class="time-chip blue">16:18</span><span class="time-chip blue">17:28</span><span class="time-chip blue">18:38</span><span class="time-chip blue">19:43</span></div></div>
+    </div>
+    <div class="info-row"><span class="info-chip"><span>🚌</span> Автобус</span><span class="info-chip"><span>⏱</span> ~35–40 хв</span><span class="info-chip"><span>🅿️</span> Платф. № 10</span></div>
+  </div>
+</div>
+
+<div id="budy" class="section">
+  <div class="route-card">
+    <div class="card-header green"><div class="route-num">№ 1193</div><div><div class="route-title">Харків → Буди</div><div class="route-sub">АС «Холодна Гора» → Буди</div></div></div>
+    <div class="card-tabs">
+      <button class="card-tab active" data-panel="r1193-pnp">Пн–Пт</button>
+      <button class="card-tab" data-panel="r1193-sbnd">Сб–Нд</button>
+    </div>
+    <div id="r1193-pnp" class="sched-panel active">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow green">🏙️</div><div><div class="dir-text">Харків → Буди</div></div></div><div class="times-grid"><span class="time-chip green">06:30</span><span class="time-chip green">07:00</span><span class="time-chip green">07:40</span><span class="time-chip green">08:20</span><span class="time-chip green">09:10</span><span class="time-chip green">10:00</span><span class="time-chip green">10:50</span><span class="time-chip green">11:40</span><span class="time-chip green">12:40</span><span class="time-chip green">13:40</span><span class="time-chip green">14:30</span><span class="time-chip green">15:30</span><span class="time-chip green">16:20</span><span class="time-chip green">17:10</span><span class="time-chip green">17:50</span><span class="time-chip green">18:30</span><span class="time-chip green">19:00</span><span class="time-chip green">19:40</span><span class="time-chip green">20:30</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow green">🏡</div><div><div class="dir-text">Буди → Харків</div></div></div><div class="times-grid"><span class="time-chip green">06:00</span><span class="time-chip green">06:30</span><span class="time-chip green">07:10</span><span class="time-chip green">07:50</span><span class="time-chip green">08:30</span><span class="time-chip green">09:10</span><span class="time-chip green">10:00</span><span class="time-chip green">10:50</span><span class="time-chip green">11:40</span><span class="time-chip green">12:30</span><span class="time-chip green">13:30</span><span class="time-chip green">14:30</span><span class="time-chip green">15:30</span><span class="time-chip green">16:20</span><span class="time-chip green">17:10</span><span class="time-chip green">18:00</span><span class="time-chip green">18:50</span><span class="time-chip green">19:40</span><span class="time-chip green">20:10</span><span class="time-chip green">21:00</span></div></div>
+    </div>
+    <div id="r1193-sbnd" class="sched-panel">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow green">🏙️</div><div><div class="dir-text">Харків (вихідні)</div></div></div><div class="times-grid"><span class="time-chip green">06:20</span><span class="time-chip green">07:30</span><span class="time-chip green">08:30</span><span class="time-chip green">09:30</span><span class="time-chip green">10:30</span><span class="time-chip green">11:30</span><span class="time-chip green">12:30</span><span class="time-chip green">13:30</span><span class="time-chip green">14:30</span><span class="time-chip green">15:30</span><span class="time-chip green">16:30</span><span class="time-chip green">17:30</span><span class="time-chip green">18:30</span><span class="time-chip green">19:30</span><span class="time-chip green">20:30</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow green">🏡</div><div><div class="dir-text">Буди (вихідні)</div></div></div><div class="times-grid"><span class="time-chip green">06:20</span><span class="time-chip green">07:30</span><span class="time-chip green">08:30</span><span class="time-chip green">09:30</span><span class="time-chip green">10:30</span><span class="time-chip green">11:30</span><span class="time-chip green">12:30</span><span class="time-chip green">13:30</span><span class="time-chip green">14:30</span><span class="time-chip green">15:30</span><span class="time-chip green">16:30</span><span class="time-chip green">17:30</span><span class="time-chip green">18:30</span><span class="time-chip green">19:30</span><span class="time-chip green">20:10</span><span class="time-chip green">21:00</span></div></div>
+    </div>
+    <div class="info-row"><span class="info-chip"><span>🚌</span> Богдан / ЗАЗ</span><span class="info-chip"><span>⏱</span> ~35 хв</span><span class="info-chip"><span>🅿️</span> Платф. № 6</span></div>
+  </div>
+</div>
+
+<div id="budy-merefa" class="section">
+  <div class="route-card">
+    <div class="card-header orange"><div class="route-num">№ 1587</div><div><div class="route-title">Буди → Мерефа</div><div class="route-sub">смт Буди → м. Мерефа</div></div></div>
+    <div class="card-tabs">
+      <button class="card-tab active" data-panel="r1587-pnp">Будні</button>
+      <button class="card-tab" data-panel="r1587-sbnd">Вихідні</button>
+    </div>
+    <div id="r1587-pnp" class="sched-panel active">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow orange">🏡</div><div><div class="dir-text">Буди → Мерефа</div></div></div><div class="times-grid"><span class="time-chip orange">06:00</span><span class="time-chip orange">07:10</span><span class="time-chip orange">08:30</span><span class="time-chip orange">10:00</span><span class="time-chip orange">12:00</span><span class="time-chip orange">14:00</span><span class="time-chip orange">16:00</span><span class="time-chip orange">17:30</span><span class="time-chip orange">19:00</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow orange">🏙️</div><div><div class="dir-text">Мерефа → Буди</div></div></div><div class="times-grid"><span class="time-chip orange">06:30</span><span class="time-chip orange">07:40</span><span class="time-chip orange">09:00</span><span class="time-chip orange">10:30</span><span class="time-chip orange">12:30</span><span class="time-chip orange">14:30</span><span class="time-chip orange">16:30</span><span class="time-chip orange">18:00</span><span class="time-chip orange">19:30</span></div></div>
+    </div>
+    <div id="r1587-sbnd" class="sched-panel">
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow orange">🏡</div><div><div class="dir-text">Буди (вихідні)</div></div></div><div class="times-grid"><span class="time-chip orange">06:00</span><span class="time-chip orange">08:30</span><span class="time-chip orange">10:00</span><span class="time-chip orange">12:00</span><span class="time-chip orange">14:00</span><span class="time-chip orange">16:00</span><span class="time-chip orange">19:00</span></div></div>
+      <div class="divider"></div>
+      <div class="direction-block"><div class="direction-label"><div class="dir-arrow orange">🏙️</div><div><div class="dir-text">Мерефа (вихідні)</div></div></div><div class="times-grid"><span class="time-chip orange">06:30</span><span class="time-chip orange">09:00</span><span class="time-chip orange">10:30</span><span class="time-chip orange">12:30</span><span class="time-chip orange">14:30</span><span class="time-chip orange">16:30</span><span class="time-chip orange">19:30</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>📋 Джерело: <a href="https://gortransport.kharkov.ua" target="_blank">gortransport.kharkov.ua</a></p>
+  <p style="margin-top:4px">Розклад довідковий. Уточнюйте на терміналі «Холодна Гора»</p>
+</div>
+
+<script>
+  // Вкладки всередині карток
+  document.querySelectorAll('.card-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const card = this.closest('.route-card');
+      card.querySelectorAll('.sched-panel').forEach(p => p.classList.remove('active'));
+      card.querySelectorAll('.card-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(this.getAttribute('data-panel')).classList.add('active');
+      this.classList.add('active');
+      setTimeout(highlightNearest, 100);
+    });
+  });
+
+  // Підсвічування найближчого рейсу
+  function highlightNearest() {
+    const now = new Date();
+    let currentMin = now.getHours() * 60 + now.getMinutes();
+
+    document.querySelectorAll('.sched-panel.active').forEach(panel => {
+      let closestChip = null;
+      let minDiff = Infinity;
+
+      panel.querySelectorAll('.time-chip').forEach(chip => {
+        const [h, m] = chip.textContent.trim().split(':').map(Number);
+        let chipMin = h * 60 + m;
+        
+        if (chipMin < currentMin) chipMin += 1440; 
+        
+        const diff = chipMin - currentMin;
+        if (diff > 0 && diff < minDiff) {
+          minDiff = diff;
+          closestChip = chip;
+        }
+      });
+
+      panel.querySelectorAll('.nearest').forEach(el => el.classList.remove('nearest'));
+      if (closestChip) closestChip.classList.add('nearest');
+    });
+  }
+
+  window.addEventListener('load', highlightNearest);
+  setInterval(highlightNearest, 30000); 
+</script>
+</body>
+</html>
