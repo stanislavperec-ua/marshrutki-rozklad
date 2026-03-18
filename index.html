@@ -80,7 +80,7 @@
     backdrop-filter: blur(4px);
   }
 
-  /* ===== NAV TABS (всегда в один экран + без подложки между кнопками) ===== */
+  /* ===== NAV TABS ===== */
   .nav-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -89,7 +89,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: transparent; /* полностью убрана любая подложка */
+    background: transparent;
     border-bottom: none;
   }
   .nav-tabs::-webkit-scrollbar { display: none; }
@@ -117,12 +117,10 @@
       inset 0 -4px 8px rgba(0,0,0,0.12);
     min-height: 64px;
   }
-  /* Inactive colored borders */
   .tab-btn[data-color="blue"] { border-color: rgba(26,115,232,0.5); color: var(--blue); }
   .tab-btn[data-color="green"] { border-color: rgba(30,143,60,0.5); color: var(--green); }
   .tab-btn[data-color="orange"] { border-color: rgba(230,81,0,0.5); color: var(--orange); }
 
-  /* Active states */
   .tab-btn.active-blue { 
     background: rgba(26,115,232,0.88) !important; 
     color: white !important; 
@@ -180,12 +178,33 @@
   .card-header.orange { background: linear-gradient(135deg, #bf360c, #e65100); }
   .route-num {
     background: rgba(255,255,255,0.22);
-    border-radius: 10px;
-    padding: 4px 10px;
+    border-radius: 12px;
+    padding: 8px 14px;
     font-family: 'Russo One', sans-serif;
-    font-size: 1rem;
+    font-size: 1.05rem;
     white-space: nowrap;
     border: 1px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    min-height: 68px;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .route-num:hover {
+    background: rgba(255,255,255,0.35);
+    transform: scale(1.05);
+  }
+  .route-num .detail-label {
+    font-size: 0.68rem;
+    opacity: 0.9;
+    margin-top: 2px;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
   }
   .route-title { font-weight: 800; font-size: 0.95rem; line-height: 1.3; }
   .route-sub { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
@@ -324,6 +343,70 @@
     font-weight: 600;
     margin-top: 8px;
   }
+
+  /* ===== MODAL – рідке скло ===== */
+  #map-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-content {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+    max-width: 94%;
+    width: 100%;
+    max-height: 92vh;
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header.blue { background: linear-gradient(135deg, #1565c0, #1976d2); }
+  .modal-header.green { background: linear-gradient(135deg, #145a28, #1e8f3c); }
+  .modal-header.orange { background: linear-gradient(135deg, #bf360c, #e65100); }
+  .modal-header h2 {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.35rem;
+    margin: 0;
+  }
+  .modal-close {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover {
+    background: rgba(255,255,255,0.4);
+  }
+  #map-iframe {
+    width: 100%;
+    height: 520px;
+    border: none;
+    border-radius: 0 0 24px 24px;
+  }
 </style>
 </head>
 <body>
@@ -350,7 +433,10 @@
 
   <div class="route-card">
     <div class="card-header blue">
-      <div class="route-num">№ 1608</div>
+      <button class="route-num" onclick="openMapModal('1608')">
+        № 1608
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Харків → Високий (ст. Високий)</div>
         <div class="route-sub">ДП «Холодна Гора» → Станція Високий · ~30 хв</div>
@@ -410,7 +496,10 @@
 
   <div class="route-card">
     <div class="card-header blue">
-      <div class="route-num">№ 1624</div>
+      <button class="route-num" onclick="openMapModal('1624')">
+        № 1624
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Харків → Високий (Зелений Гай)</div>
         <div class="route-sub">ДП «Холодна Гора» → Зелений Гай · ~35 хв</div>
@@ -524,7 +613,10 @@
 
   <div class="route-card">
     <div class="card-header blue">
-      <div class="route-num">№ 1182</div>
+      <button class="route-num" onclick="openMapModal('1182')">
+        № 1182
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Харків → пл. Високий → Нова Березівка</div>
         <div class="route-sub">ДП «Холодна Гора» → пл. Високий → Нова Березівка · ~35–40 хв</div>
@@ -913,7 +1005,9 @@
     </div>
   </div>
 
-</div><div id="budy" class="section">
+</div>
+
+<div id="budy" class="section">
 
   <div class="warn-banner">
     <span class="icon">⚠️</span>
@@ -922,7 +1016,10 @@
 
   <div class="route-card">
     <div class="card-header green">
-      <div class="route-num">№ 1193</div>
+      <button class="route-num" onclick="openMapModal('1193')">
+        № 1193
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Харків → Буди</div>
         <div class="route-sub">ДП «Холодна Гора» → Буди · ~35 хв · ≈ 35 грн</div>
@@ -1063,7 +1160,9 @@
     </div>
   </div>
 
-</div><div id="budy-merefa" class="section">
+</div>
+
+<div id="budy-merefa" class="section">
 
   <div class="warn-banner">
     <span class="icon">⚠️</span>
@@ -1072,7 +1171,10 @@
 
   <div class="route-card">
     <div class="card-header orange">
-      <div class="route-num">№ 1587</div>
+      <button class="route-num" onclick="openMapModal('1587')">
+        № 1587
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Буди ↔ Мерефа</div>
         <div class="route-sub">смт Буди ↔ м. Мерефа · ~20 хв</div>
@@ -1160,7 +1262,10 @@
 
   <div class="route-card">
     <div class="card-header orange">
-      <div class="route-num">№ 1611</div>
+      <button class="route-num" onclick="openMapModal('1611')">
+        № 1611
+        <span class="detail-label">деталі маршруту</span>
+      </button>
       <div>
         <div class="route-title">Харків → Мерефа (вул. Конституції)</div>
         <div class="route-sub">ДП «Холодна Гора» → Мерефа · ~45–50 хв · ≈ 45 грн</div>
@@ -1322,9 +1427,22 @@
     </div>
   </div>
 
-</div><div class="footer">
+</div>
+
+<div class="footer">
   <p>📋 Джерело: <a href="https://gortransport.kharkov.ua" target="_blank">gortransport.kharkov.ua</a></p>
   <p style="margin-top:4px">Розклад довідковий. Можливі зміни.<br>Уточнюйте на терміналі «Холодна Гора»</p>
+</div>
+
+<!-- MODAL -->
+<div id="map-modal">
+  <div class="modal-content">
+    <div class="modal-header blue" id="modal-header">
+      <h2 id="modal-title">Маршрут №1608</h2>
+      <button class="modal-close" onclick="closeMapModal()">✕</button>
+    </div>
+    <iframe id="map-iframe" src=""></iframe>
+  </div>
 </div>
 
 <script>
@@ -1398,6 +1516,41 @@
     highlightNextBuses();
     setInterval(highlightNextBuses, 60000);
 
+    window.openMapModal = function(route) {
+      const mapUrls = {
+        '1608': 'https://gortransport.kharkov.ua/bus/suburban/routes/88/map/',
+        '1624': 'https://gortransport.kharkov.ua/bus/suburban/routes/89/map/',
+        '1182': 'https://gortransport.kharkov.ua/bus/suburban/routes/82/map/',
+        '1193': 'https://gortransport.kharkov.ua/bus/suburban/routes/83/map/',
+        '1611': 'https://gortransport.kharkov.ua/bus/suburban/routes/85/map/',
+        '1587': 'https://www.google.com/maps/dir/%D0%91%D1%83%D0%B4%D0%B8,+%D0%A5%D0%B0%D1%80%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%B0/%D0%9C%D0%B5%D1%80%D0%B5%D1%84%D0%B0,+%D0%A5%D0%B0%D1%80%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,+%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%B0/@49.883,36.033,13z/data=!3m1!4b1!4m14!4m13!1m5!1m1!1s0x4126a0a5e5f5f5f5:0x5f5f5f5f5f5f5f5f!2m2!1d36.033!2d49.883!1m5!1m1!1s0x4126a0a5e5f5f5f5:0x5f5f5f5f5f5f5f5f!2m2!1d36.033!2d49.883!3e0?entry=ttu'
+      };
+      const colors = {
+        '1608': 'blue', '1624': 'blue', '1182': 'blue',
+        '1193': 'green',
+        '1587': 'orange', '1611': 'orange'
+      };
+      const color = colors[route] || 'blue';
+      const modal = document.getElementById('map-modal');
+      const header = document.getElementById('modal-header');
+      const title = document.getElementById('modal-title');
+      const iframe = document.getElementById('map-iframe');
+
+      header.className = `modal-header ${color}`;
+      title.textContent = `Маршрут №${route}`;
+      iframe.src = mapUrls[route];
+      modal.style.display = 'flex';
+    };
+
+    window.closeMapModal = function() {
+      const modal = document.getElementById('map-modal');
+      modal.style.display = 'none';
+      document.getElementById('map-iframe').src = '';
+    };
+
+    document.getElementById('map-modal').addEventListener('click', function(e) {
+      if (e.target.id === 'map-modal') closeMapModal();
+    });
   });
 </script>
 
