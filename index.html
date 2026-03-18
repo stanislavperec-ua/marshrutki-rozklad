@@ -80,46 +80,49 @@
     backdrop-filter: blur(4px);
   }
 
-  /* ===== NAV TABS (рідке скло + об'ємні кнопки) ===== */
+  /* ===== NAV TABS (всегда в один экран + без подложки между кнопками) ===== */
   .nav-tabs {
     display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 16px 16px 0;
-    scrollbar-width: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 6px 6px;
     position: sticky;
     top: 0;
     z-index: 100;
-    background: transparent; /* прибрано сіру підложку */
+    background: transparent; /* полностью убрана любая подложка */
     border-bottom: none;
   }
   .nav-tabs::-webkit-scrollbar { display: none; }
   .tab-btn {
-    flex: 0 0 auto;
-    padding: 12px 18px; /* більші */
+    flex: 1 1 calc(33% - 6px);
+    min-width: 0;
+    padding: 14px 6px;
     border: 1px solid rgba(255,255,255,0.5);
     border-radius: 28px;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem; /* більший шрифт */
+    font-size: 0.86rem;
+    line-height: 1.2;
     cursor: pointer;
     touch-action: manipulation;
     transition: all 0.3s ease;
-    white-space: nowrap;
+    white-space: normal;
+    text-align: center;
     background: rgba(255,255,255,0.28);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-shadow: 
       0 10px 30px rgba(0,0,0,0.15),
       inset 0 4px 8px rgba(255,255,255,0.75),
-      inset 0 -4px 8px rgba(0,0,0,0.12); /* об'ємне рідке скло */
+      inset 0 -4px 8px rgba(0,0,0,0.12);
+    min-height: 64px;
   }
   /* Inactive colored borders */
   .tab-btn[data-color="blue"] { border-color: rgba(26,115,232,0.5); color: var(--blue); }
   .tab-btn[data-color="green"] { border-color: rgba(30,143,60,0.5); color: var(--green); }
   .tab-btn[data-color="orange"] { border-color: rgba(230,81,0,0.5); color: var(--orange); }
 
-  /* Active states — ще більш об'ємні */
+  /* Active states */
   .tab-btn.active-blue { 
     background: rgba(26,115,232,0.88) !important; 
     color: white !important; 
