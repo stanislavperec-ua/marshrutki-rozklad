@@ -80,19 +80,26 @@
     backdrop-filter: blur(4px);
   }
 
-  /* ===== NAV TABS ===== */
+  /* ===== NAV TABS (рідке скло / glassmorphism) ===== */
   .nav-tabs {
     display: flex;
     overflow-x: auto;
     gap: 8px;
     padding: 16px 16px 0;
     scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(240, 244, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
   }
   .nav-tabs::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 0 0 auto;
-    padding: 8px 15px; /* -1px for border */
-    border: 1px solid; /* Added border */
+    padding: 8px 15px;
+    border: 1px solid rgba(255,255,255,0.4);
     border-radius: 30px;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
@@ -101,21 +108,41 @@
     touch-action: manipulation;
     transition: all 0.25s ease;
     white-space: nowrap;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   }
-  /* Inactive colored borders */
-  .tab-btn[data-color="blue"] { border-color: var(--blue); color: var(--blue); }
-  .tab-btn[data-color="green"] { border-color: var(--green); color: var(--green); }
-  .tab-btn[data-color="orange"] { border-color: var(--orange); color: var(--orange); }
+  /* Inactive colored borders and text */
+  .tab-btn[data-color="blue"] { border-color: rgba(26,115,232,0.5); color: var(--blue); }
+  .tab-btn[data-color="green"] { border-color: rgba(30,143,60,0.5); color: var(--green); }
+  .tab-btn[data-color="orange"] { border-color: rgba(230,81,0,0.5); color: var(--orange); }
 
-  /* Active states */
-  .tab-btn.active-blue { background: var(--blue) !important; color: white !important; border-color: var(--blue); box-shadow: 0 4px 15px rgba(26,115,232,0.4); }
-  .tab-btn.active-green { background: var(--green) !important; color: white !important; border-color: var(--green); box-shadow: 0 4px 15px rgba(30,143,60,0.4); }
-  .tab-btn.active-orange { background: var(--orange) !important; color: white !important; border-color: var(--orange); box-shadow: 0 4px 15px rgba(230,81,0,0.4); }
+  /* Active states — tinted рідке скло */
+  .tab-btn.active-blue { 
+    background: rgba(26,115,232,0.85) !important; 
+    color: white !important; 
+    border-color: rgba(255,255,255,0.3) !important; 
+    box-shadow: 0 4px 15px rgba(26,115,232,0.4); 
+    backdrop-filter: blur(8px);
+  }
+  .tab-btn.active-green { 
+    background: rgba(30,143,60,0.85) !important; 
+    color: white !important; 
+    border-color: rgba(255,255,255,0.3) !important; 
+    box-shadow: 0 4px 15px rgba(30,143,60,0.4);
+    backdrop-filter: blur(8px);
+  }
+  .tab-btn.active-orange { 
+    background: rgba(230,81,0,0.85) !important; 
+    color: white !important; 
+    border-color: rgba(255,255,255,0.3) !important; 
+    box-shadow: 0 4px 15px rgba(230,81,0,0.4);
+    backdrop-filter: blur(8px);
+  }
 
   .tab-btn:hover:not(.active-blue):not(.active-green):not(.active-orange) {
-    background: #f0f4ff;
+    background: rgba(255,255,255,0.35) !important;
   }
 
   /* ===== SECTIONS ===== */
@@ -206,7 +233,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
-    padding-top: 14px; /* Added to accommodate alarm icon */
+    padding-top: 14px;
   }
   .time-chip {
     padding: 5px 11px;
@@ -220,7 +247,6 @@
   .time-chip.green { background: #e8f5e9; color: #145a28; }
   .time-chip.orange { background: #fbe9e7; color: #bf360c; }
 
-  /* ===== TERRACOTTA HIGHLIGHT ===== */
   .time-chip.next-bus {
     background: #E2725B !important;
     color: white !important;
@@ -241,7 +267,6 @@
     margin: 14px 0;
   }
 
-  /* ===== INFOBOX ===== */
   .info-row {
     display: flex;
     flex-wrap: wrap;
@@ -257,7 +282,6 @@
   }
   .info-chip span { font-size: 0.85rem; }
 
-  /* ===== WARNING BANNER ===== */
   .warn-banner {
     margin: 0 16px 6px;
     background: #fff8e1;
@@ -270,7 +294,6 @@
   }
   .warn-banner .icon { font-size: 1rem; flex-shrink:0; }
 
-  /* ===== FOOTER ===== */
   .footer {
     text-align: center;
     padding: 20px 20px 0;
@@ -280,7 +303,6 @@
   }
   .footer a { color: var(--blue); text-decoration: none; }
 
-  /* ===== NOTE CHIP ===== */
   .note-chip {
     display: inline-block;
     background: #fff8e1;
@@ -1297,7 +1319,6 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     
-    // 1. Логіка для головних вкладок (Секцій)
     const mainTabs = document.querySelectorAll('.nav-tabs .tab-btn');
     const sections = document.querySelectorAll('.section');
 
@@ -1314,7 +1335,6 @@
       });
     });
 
-    // 2. Логіка для вкладок всередині карток (Пн-Пт, Вихідні тощо)
     const cardTabs = document.querySelectorAll('.card-tab');
 
     cardTabs.forEach(tab => {
@@ -1333,45 +1353,38 @@
       });
     });
 
-    // 3. Логіка для підсвічування найближчого маршруту
     function highlightNextBuses() {
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-      // Очищуємо попередні підсвічування
       document.querySelectorAll('.time-chip.next-bus').forEach(el => {
         el.classList.remove('next-bus');
       });
 
-      // Проходимо по кожному блоку з розкладом
       document.querySelectorAll('.times-grid').forEach(grid => {
         const chips = grid.querySelectorAll('.time-chip');
         let found = false;
         
         for (let i = 0; i < chips.length; i++) {
           const chip = chips[i];
-          const timeText = chip.innerText.trim().split('\n')[0]; // Беремо лише час, без підписів
+          const timeText = chip.innerText.trim().split('\n')[0];
           const [hours, minutes] = timeText.split(':').map(Number);
           const chipMinutes = hours * 60 + minutes;
 
           if (chipMinutes > currentMinutes) {
             chip.classList.add('next-bus');
             found = true;
-            break; // Зупиняємося на першому ж майбутньому часі
+            break;
           }
         }
         
-        // Якщо всі рейси на сьогодні вже поїхали, підсвічуємо найперший рейс (на завтра)
         if (!found && chips.length > 0) {
           chips[0].classList.add('next-bus');
         }
       });
     }
 
-    // Запускаємо підсвічування при завантаженні...
     highlightNextBuses();
-    
-    // ...і оновлюємо щохвилини
     setInterval(highlightNextBuses, 60000);
 
   });
