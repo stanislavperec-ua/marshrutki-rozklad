@@ -80,7 +80,7 @@
     backdrop-filter: blur(4px);
   }
 
-  /* ===== NAV TABS (рідке скло / glassmorphism) ===== */
+  /* ===== NAV TABS (рідке скло + об'ємні кнопки) ===== */
   .nav-tabs {
     display: flex;
     overflow-x: auto;
@@ -90,59 +90,67 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(240, 244, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    background: transparent; /* прибрано сіру підложку */
+    border-bottom: none;
   }
   .nav-tabs::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 0 0 auto;
-    padding: 8px 15px;
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 30px;
+    padding: 12px 18px; /* більші */
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 28px;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 0.95rem; /* більший шрифт */
     cursor: pointer;
     touch-action: manipulation;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     white-space: nowrap;
-    background: rgba(255,255,255,0.25);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 
+      0 10px 30px rgba(0,0,0,0.15),
+      inset 0 4px 8px rgba(255,255,255,0.75),
+      inset 0 -4px 8px rgba(0,0,0,0.12); /* об'ємне рідке скло */
   }
-  /* Inactive colored borders and text */
+  /* Inactive colored borders */
   .tab-btn[data-color="blue"] { border-color: rgba(26,115,232,0.5); color: var(--blue); }
   .tab-btn[data-color="green"] { border-color: rgba(30,143,60,0.5); color: var(--green); }
   .tab-btn[data-color="orange"] { border-color: rgba(230,81,0,0.5); color: var(--orange); }
 
-  /* Active states — tinted рідке скло */
+  /* Active states — ще більш об'ємні */
   .tab-btn.active-blue { 
-    background: rgba(26,115,232,0.85) !important; 
+    background: rgba(26,115,232,0.88) !important; 
     color: white !important; 
-    border-color: rgba(255,255,255,0.3) !important; 
-    box-shadow: 0 4px 15px rgba(26,115,232,0.4); 
-    backdrop-filter: blur(8px);
+    border-color: rgba(255,255,255,0.4) !important; 
+    box-shadow: 
+      0 8px 25px rgba(26,115,232,0.45),
+      inset 0 4px 8px rgba(255,255,255,0.6),
+      inset 0 -4px 8px rgba(0,0,0,0.15);
   }
   .tab-btn.active-green { 
-    background: rgba(30,143,60,0.85) !important; 
+    background: rgba(30,143,60,0.88) !important; 
     color: white !important; 
-    border-color: rgba(255,255,255,0.3) !important; 
-    box-shadow: 0 4px 15px rgba(30,143,60,0.4);
-    backdrop-filter: blur(8px);
+    border-color: rgba(255,255,255,0.4) !important; 
+    box-shadow: 
+      0 8px 25px rgba(30,143,60,0.45),
+      inset 0 4px 8px rgba(255,255,255,0.6),
+      inset 0 -4px 8px rgba(0,0,0,0.15);
   }
   .tab-btn.active-orange { 
-    background: rgba(230,81,0,0.85) !important; 
+    background: rgba(230,81,0,0.88) !important; 
     color: white !important; 
-    border-color: rgba(255,255,255,0.3) !important; 
-    box-shadow: 0 4px 15px rgba(230,81,0,0.4);
-    backdrop-filter: blur(8px);
+    border-color: rgba(255,255,255,0.4) !important; 
+    box-shadow: 
+      0 8px 25px rgba(230,81,0,0.45),
+      inset 0 4px 8px rgba(255,255,255,0.6),
+      inset 0 -4px 8px rgba(0,0,0,0.15);
   }
 
   .tab-btn:hover:not(.active-blue):not(.active-green):not(.active-orange) {
-    background: rgba(255,255,255,0.35) !important;
+    background: rgba(255,255,255,0.38) !important;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.18);
   }
 
   /* ===== SECTIONS ===== */
