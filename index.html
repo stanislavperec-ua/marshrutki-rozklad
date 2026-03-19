@@ -1449,6 +1449,7 @@
       <button class="modal-close" onclick="closeMapModal()">✕</button>
     </div>
     <iframe id="map-iframe" src=""></iframe>
+    <div id="map-svg-wrap" style="display:none;width:100%;min-height:300px;overflow-y:auto;background:#f8f9ff;box-sizing:border-box;padding:16px;"></div>
   </div>
 </div>
 
@@ -1530,7 +1531,6 @@
         '1182': 'https://gortransport.kharkov.ua/bus/suburban/routes/82/map/',
         '1193': 'https://gortransport.kharkov.ua/bus/suburban/routes/83/map/',
         '1611': 'https://gortransport.kharkov.ua/bus/suburban/routes/85/map/',
-        '1587': 'https://www.google.com/maps/dir/%D1%81%D0%BC%D1%82+%D0%91%D1%83%D0%B4%D0%B8,+%D0%A5%D0%B0%D1%80%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C/%D0%9C%D0%B5%D1%80%D0%B5%D1%84%D0%B0,+%D0%A5%D0%B0%D1%80%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C'
       };
       const colors = {
         '1608': 'blue', '1624': 'blue', '1182': 'blue',
@@ -1542,17 +1542,78 @@
       const header = document.getElementById('modal-header');
       const title = document.getElementById('modal-title');
       const iframe = document.getElementById('map-iframe');
+      const svgWrap = document.getElementById('map-svg-wrap');
 
       header.className = `modal-header ${color}`;
       title.textContent = `Маршрут №${route}`;
-      iframe.src = mapUrls[route];
+
+      if (route === '1587') {
+        iframe.style.display = 'none';
+        iframe.src = '';
+        svgWrap.style.display = 'block';
+        svgWrap.innerHTML = buildRoute1587SVG();
+      } else {
+        svgWrap.style.display = 'none';
+        svgWrap.innerHTML = '';
+        iframe.style.display = 'block';
+        iframe.src = mapUrls[route];
+      }
       modal.style.display = 'flex';
     };
+
+    function buildRoute1587SVG() {
+      // Зупинки маршруту 1587: смт. Буди → ст. Комарівка → Мерефа (центр)
+      const stops = [
+        { name: 'смт. Буди', sub: 'початок маршруту', isTerminal: true },
+        { name: 'ст. Комарівка', sub: 'зупинний пункт', isTerminal: false },
+        { name: 'Мерефа', sub: 'центр / кінець', isTerminal: true }
+      ];
+      const accent = '#e65100';
+      const n = stops.length;
+      const CW = 160, PADX = 60, Y = 130, W = PADX * 2 + (n - 1) * CW, H = 240;
+
+      let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;display:block;margin:20px auto;font-family:Nunito,sans-serif">`;
+
+      // Інфо-банер
+      svg += `<rect x="10" y="8" width="${W-20}" height="44" rx="10" fill="#fff3e0" stroke="${accent}" stroke-width="1.5"/>`;
+      svg += `<text x="${W/2}" y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#bf360c">Маршрут №1587 · Буди → Мерефа</text>`;
+      svg += `<text x="${W/2}" y="42" text-anchor="middle" font-size="10.5" fill="#7b5800">~22 км · офіційна карта відсутня · схема орієнтовна</text>`;
+
+      // Лінія зі стрілкою
+      svg += `<defs><marker id="ah87" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="${accent}"/></marker></defs>`;
+      svg += `<line x1="${PADX}" y1="${Y}" x2="${W - PADX - 14}" y2="${Y}" stroke="${accent}" stroke-width="5" stroke-linecap="round" marker-end="url(#ah87)"/>`;
+
+      // Зупинки
+      stops.forEach(function(s, i) {
+        const cx = PADX + i * CW;
+        const r = s.isTerminal ? 14 : 10;
+        const above = (i % 2 === 0);
+        const ty = above ? Y - r - 22 : Y + r + 22;
+        const ts = above ? Y - r - 8  : Y + r + 36;
+
+        svg += `<circle cx="${cx}" cy="${Y}" r="${r+2}" fill="rgba(0,0,0,0.1)"/>`;
+        svg += `<circle cx="${cx}" cy="${Y}" r="${r}" fill="${accent}" stroke="white" stroke-width="3"/>`;
+        svg += `<circle cx="${cx}" cy="${Y}" r="${s.isTerminal ? 6 : 4}" fill="white"/>`;
+
+        svg += `<text x="${cx}" y="${ty}" text-anchor="middle" font-size="${s.isTerminal ? 13 : 12}" font-weight="${s.isTerminal ? 800 : 700}" fill="#1a1a2e">${s.name}</text>`;
+        svg += `<text x="${cx}" y="${ts}" text-anchor="middle" font-size="10" fill="#6b7280">${s.sub}</text>`;
+      });
+
+      // Попередження
+      svg += `<rect x="10" y="${H-32}" width="${W-20}" height="24" rx="7" fill="#fef3c7" stroke="#fbbf24" stroke-width="1"/>`;
+      svg += `<text x="${W/2}" y="${H-16}" text-anchor="middle" font-size="9.5" fill="#92400e">⚠️ Схема орієнтовна. Уточнюйте маршрут у перевізника.</text>`;
+
+      svg += '</svg>';
+      return svg;
+    }
 
     window.closeMapModal = function() {
       const modal = document.getElementById('map-modal');
       modal.style.display = 'none';
       document.getElementById('map-iframe').src = '';
+      document.getElementById('map-svg-wrap').innerHTML = '';
+      document.getElementById('map-svg-wrap').style.display = 'none';
+      document.getElementById('map-iframe').style.display = 'block';
     };
 
     document.getElementById('map-modal').addEventListener('click', function(e) {
