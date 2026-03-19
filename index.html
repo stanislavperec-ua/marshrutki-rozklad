@@ -415,9 +415,18 @@
     align-items: center;
     justify-content: center;
   }
-  #map-iframe {
+  .map-clip {
     width: 100%;
-    height: 520px;
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+  }
+  #map-iframe {
+    position: absolute;
+    top: -215px;
+    left: -10px;
+    width: calc(100% + 20px);
+    height: 720px;
     border: none;
   }
 </style>
@@ -1448,8 +1457,10 @@
       <h2 id="modal-title">Маршрут №1608</h2>
       <button class="modal-close" onclick="closeMapModal()">✕</button>
     </div>
-    <iframe id="map-iframe" src=""></iframe>
-    <div id="map-svg-wrap" style="display:none;width:100%;min-height:520px;overflow-y:auto;background:#f8f9ff;box-sizing:border-box;"></div>
+    <div class="map-clip" id="map-clip">
+      <iframe id="map-iframe" src=""></iframe>
+    </div>
+    <div id="map-svg-wrap" style="display:none;width:100%;min-height:480px;overflow-y:auto;background:#f8f9ff;box-sizing:border-box;"></div>
   </div>
 </div>
 
@@ -1547,15 +1558,16 @@
       header.className = `modal-header ${color}`;
       title.textContent = `Маршрут №${route}`;
 
+      const mapClip = document.getElementById('map-clip');
       if (route === '1587') {
-        iframe.style.display = 'none';
+        mapClip.style.display = 'none';
         iframe.src = '';
         svgWrap.style.display = 'block';
         svgWrap.innerHTML = buildRoute1587SVG();
       } else {
         svgWrap.style.display = 'none';
         svgWrap.innerHTML = '';
-        iframe.style.display = 'block';
+        mapClip.style.display = 'block';
         iframe.src = mapUrls[route];
       }
       modal.style.display = 'flex';
@@ -1613,7 +1625,7 @@
       document.getElementById('map-iframe').src = '';
       document.getElementById('map-svg-wrap').innerHTML = '';
       document.getElementById('map-svg-wrap').style.display = 'none';
-      document.getElementById('map-iframe').style.display = 'block';
+      document.getElementById('map-clip').style.display = 'block';
     };
 
     document.getElementById('map-modal').addEventListener('click', function(e) {
